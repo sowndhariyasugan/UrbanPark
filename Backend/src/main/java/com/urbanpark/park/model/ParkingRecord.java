@@ -27,13 +27,13 @@ public class ParkingRecord {
     private ParkingSlot slot;
 
     @Column(length = 100)
-    private String carModel;
+    private String vehicleModel;
 
     @Column(length = 20)
-    private String carNumber;
+    private String vehicleNumber;
 
     @Column(length = 50)
-    private String carColor;
+    private String vehicleColor;
 
     @Column(length = 100)
     private String driverEmail;
