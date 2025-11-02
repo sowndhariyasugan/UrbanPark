@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ParkingRecordRepository extends JpaRepository<ParkingRecord, Long> {
+public interface ParkingRecordRepository extends JpaRepository<ParkingRecord, Integer> {
 
     // 🔹 Find records by slot
     List<ParkingRecord> findBySlot(ParkingSlot parkingSlot);
