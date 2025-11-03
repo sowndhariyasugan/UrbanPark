@@ -21,11 +21,6 @@ public class ParkingRecord {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer parkingId;
 
-    // --- RELATIONSHIP with Slot ---
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "slot_id")
-    private ParkingSlot slot;
-
     @Column(length = 100)
     private String vehicleModel;
 
@@ -54,4 +49,9 @@ public class ParkingRecord {
     // --- RELATIONSHIP with Bill ---
     @OneToOne(mappedBy = "parkingRecord", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Bill bill;
+
+    // --- RELATIONSHIP with Slot ---
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "slot_id")
+    private ParkingSlot slot;
 }
