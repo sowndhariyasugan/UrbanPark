@@ -1,11 +1,15 @@
 package com.urbanpark.park.service;
 
+import com.urbanpark.park.dto.ParkingRecordDTO;
 import com.urbanpark.park.enums.RecordStatus;
 import com.urbanpark.park.enums.SlotStatus;
+import com.urbanpark.park.exception.RecordNotFoundException;
+import com.urbanpark.park.mapper.ParkingRecordMapper;
 import com.urbanpark.park.model.Bill;
 import com.urbanpark.park.model.ParkingRecord;
 import com.urbanpark.park.model.ParkingSlot;
 import com.urbanpark.park.repository.ParkingRecordRepository;
+import com.urbanpark.park.repository.ParkingSlotRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,13 +25,30 @@ import java.util.Optional;
 public class ParkingRecordService {
 
     private final ParkingRecordRepository parkingRecordRepository;
+    private final ParkingSlotRepository parkingSlotRepository;
 
     // 🔹 1. Create new parking record (vehicle entry)
-    public ParkingRecord createRecord(ParkingRecord record) {
-        record.setStartTime(LocalDateTime.now());
-        record.setStatus(RecordStatus.ACTIVE);
-        record.setDateRecord(LocalDateTime.now().toLocalDate());
+    @Transactional
+    public ParkingRecord createRecord(ParkingRecordDTO dto) {
+        ParkingSlot slot = parkingSlotRepository.findById(dto.getSlotId())
+                .orElseThrow(() -> new RecordNotFoundException("Slot not found with ID: " + dto.getSlotId()));
+
+        ParkingRecord record = ParkingRecordMapper.toEntity(dto, slot);
+        record.setStartTime(LocalDateTime.now()); // auto-set when created
+        record.setStatus(dto.getStatus() != null ? dto.getStatus() : RecordStatus.ACTIVE);
+
         return parkingRecordRepository.save(record);
+    }
+
+
+
+    @Transactional(readOnly = true)
+    public List<ParkingRecord> getRecordsBySlotAndStatus(Integer slotId, RecordStatus status) {
+        return parkingRecordRepository.findAll().stream()
+                .filter(r -> r.getSlot() != null &&
+                        r.getSlot().getSlotId().equals(slotId) &&
+                        r.getStatus() == status)
+                .toList();
     }
 
     // 🔹 2. Get all records
@@ -38,9 +59,24 @@ public class ParkingRecordService {
 
     // 🔹 3. Get record by ID
     @Transactional(readOnly = true)
-    public Optional<ParkingRecord> getRecordById(Integer id) {
-        return parkingRecordRepository.findById(id);
+    public ParkingRecord getRecordById(Integer id) {
+        return parkingRecordRepository.findById(id)
+                .orElseThrow(() -> new RecordNotFoundException("Parking record not found with ID: " + id));
     }
+
+    @Transactional
+    public ParkingRecord updateRecord(Integer id, ParkingRecordDTO dto) {
+        ParkingRecord record = parkingRecordRepository.findById(id)
+                .orElseThrow(() -> new RecordNotFoundException("Parking record not found with ID: " + id));
+
+        if (dto.getEndTime() != null) record.setEndTime(dto.getEndTime());
+        if (dto.getStatus() != null) record.setStatus(dto.getStatus());
+        if (dto.getTotalAmount() != null) record.setTotalAmount(dto.getTotalAmount());
+
+        return parkingRecordRepository.save(record);
+    }
+
+
 
     // 🔹 4. Get records by slot
     @Transactional(readOnly = true)

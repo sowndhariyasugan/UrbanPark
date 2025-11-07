@@ -42,7 +42,7 @@ public class ParkingRecord {
     private LocalDate dateRecord;
 
     @Enumerated(EnumType.STRING)
-    private RecordStatus status; // ACTIVE, COMPLETED, CANCELLED
+    private RecordStatus status; // ACTIVE, COMPLETED, CANCELLED, BOOKED
 
     private BigDecimal totalAmount;
 
