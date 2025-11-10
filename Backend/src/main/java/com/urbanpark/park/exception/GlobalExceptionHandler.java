@@ -31,4 +31,20 @@ public class GlobalExceptionHandler {
         response.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
+
+    @ExceptionHandler(BillNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleBillNotFound(BillNotFoundException ex) {
+        Map<String, Object> err = new HashMap<>();
+        err.put("timestamp", LocalDateTime.now());
+        err.put("error", ex.getMessage());
+        return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, Object>> handleRuntime(RuntimeException ex) {
+        Map<String, Object> err = new HashMap<>();
+        err.put("timestamp", LocalDateTime.now());
+        err.put("error", ex.getMessage());
+        return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
+    }
 }
